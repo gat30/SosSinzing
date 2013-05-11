@@ -1,1 +1,7 @@
-Il faut installer node.js pour que ca fonctionne :) 
+Pour lancer le site, il faut lancer mongoDB avec la base de donnée dans le dossier db, puis tu lance le terminal, tu te place dans le
+dossier site internet et tu lance la commande : "Node app.js"
+(tu dois avoir installé node.js) 
+et la tu peux ouvrir firefox (ou tout autre navigateur ) et aller a l'adresse : localhost:3002
+
+Voila :) 
+Courage :D

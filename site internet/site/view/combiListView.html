@@ -1,0 +1,66 @@
+  
+  <!-- formulaire de recherche-->
+    <form class="search-field" name="myForm" novalidate>
+      <div class="search-float">
+        <h4 style="margin-bottom: 40px">Vos mensurations :</h4>
+        <Label for="userHeight">Hauteur :</Label><input type="text" placeholder='cm' name="userHeight" ng-model='userHeight' ng-pattern="/^[0-9]+([.|,][0-9]+)?$/" required> 
+        <Label>Poids :</Label><input type="text" placeholder='kg' name="userWeight" ng-model='userWeight'ng-pattern="/^[0-9]+([.|,][0-9]+)?$/" required>
+        <Label >Sexe :</Label>  
+          <select required ng-change="updateForm()" ng-model='userSexe' ng-options='option.value as option.name for option in sexe'></select>
+        <!--<label ng-show="visible" >Tour de poitrine :</label> <input ng-show="visible" type="text" placeholder="ex: 90c" name="userTP" ng-model='userTP' >-->
+          <button id="submit" ng-click="getChartes()" ng-disabled="invalideForm(myForm)">Find </button>
+      </div>
+    
+      <div style="width: 700px; display: block; margin-left: 250px;">
+        <h4 style="margin-bottom: 0px;margin-left: 10px">Votre morphologie :</h4>
+          <ul class="results-list">
+            <li ng-repeat='morpho in morphos.value' ng-animate="{ enter: 'custom-enter', leave: none}" >
+              <img ng-src='{{morpho.url}}' ng-class="itemClass(morpho)" class="{{styleClass}}"  ng-click="select(morpho)" ng-mouseleave="styleClass ='normal'" ng-mouseenter="styleClass ='selected'" name="'{{morpho.name}}'">
+              <p class="title"> {{morpho.name}} {{morpho.selected}}</p>
+            </li>
+          </ul>
+          
+      </div>
+    </form>
+  
+
+  <!-- style a mettre dans le css
+ 
+  de plus mettre un entete pour un filtre-->
+  <div ng-show="show">
+    <div class="search-float">
+      <h3>Options de recherche</h3>
+      <ul>
+        <li ng-repeat='size in filterList.size  | orderBy:size'>
+          <input type="checkbox" value="{{size}}MM"> {{size}}MM
+        </li>
+        <li ng-repeat='charte in filterListCharte'>
+          <input type="checkbox" value="{{charte}}"> {{charte}}MM
+        </li>
+      </ul>
+    </div>
+    
+    <div class="result-list" >
+      <!-- entete -->
+      <div class="list-filter">
+        <h1 style="float: left">Resultats</h1>
+        <div class="btn-group" style="float: right; margin-top: 10px; " >
+          <button ng-disabled="thumbSize == 'small'" ng-click="setThumbSize('small')">Reduire</button>
+          <button ng-disabled="thumbSize == 'large'" ng-click="setThumbSize('large')">Agrandir</button>
+        </div>
+      </div>
+      <!--list of product-->
+      <ul class="results-list" ng-class="thumbSize + '-thumbs'">
+        <li ng-repeat='combi in selectCombi(bestCombi)' ng-animate="{ enter: 'custom-enter', leave: none}">
+          <img ng-src="{{combi.url}}"/>
+          <p class="title">{{combi.name}} {{combi.thickness}} {{combi.year}}</p>
+          <p class="subTitle">Taille : {{combi.size}}</p> 
+        </li>
+        <li ng-repeat='combi in goodCombi |filter:filter | orderBy: orderProp' ng-animate="{ enter: 'custom-enter', leave: none}">
+          <img ng-src="{{combi.url}}"/>
+          <p class="title">{{combi.name}} {{combi.thickness}} {{combi.year}}</p>
+          <p class="subTitle">Taille : {{combi.size}}</p> 
+        </li>
+      </ul>
+    </div>
+  </div>
