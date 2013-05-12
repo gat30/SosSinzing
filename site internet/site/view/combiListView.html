@@ -31,11 +31,13 @@
     <div class="search-float">
       <h3>Options de recherche</h3>
       <ul>
-        <li ng-repeat='size in filterList.size  | orderBy:size'>
-          <input type="checkbox" value="{{size}}MM"> {{size}}MM
+        <h6>Epaisseur</h6>
+        <li ng-repeat="size in filterList.size  | orderBy:'value'">
+          <input type="checkbox" name="selected" ng-checked="isSelected(size.value)" ng-click="updateSelection($event, size.value)"> {{size.value}}MM
         </li>
-        <li ng-repeat='charte in filterListCharte'>
-          <input type="checkbox" value="{{charte}}"> {{charte}}MM
+        <h6>Marque</h6>
+        <li ng-repeat="charte in filterListCharte| orderBy:'value'">
+          <input type="checkbox" name="selected" ng-checked="isSelectedM(charte.value)" ng-click="updateSelectionM($event, charte.value)"> {{charte.value}}
         </li>
       </ul>
     </div>
@@ -51,7 +53,7 @@
       </div>
       <!--list of product-->
       <ul class="results-list" ng-class="thumbSize + '-thumbs'">
-        <li ng-repeat='combi in selectCombi(bestCombi)' ng-animate="{ enter: 'custom-enter', leave: none}">
+        <li ng-repeat='combi in selectedCombi' ng-animate="{ enter: 'custom-enter', leave: none}">
           <img ng-src="{{combi.url}}"/>
           <p class="title">{{combi.name}} {{combi.thickness}} {{combi.year}}</p>
           <p class="subTitle">Taille : {{combi.size}}</p> 

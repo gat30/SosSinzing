@@ -21,7 +21,7 @@ function combiListController($scope, photoSearchService, $http) {
   
   $scope.filterList = {size:[]};
   $scope.filterListcharte = [];
-  $scope.test = ["3", "5"];
+  $scope.filterE= [];
   
   //la liste des combis et charte récupéré en bd
   $scope.chartes = [];
@@ -67,7 +67,6 @@ function combiListController($scope, photoSearchService, $http) {
       $scope.morphos.value = $scope.sexe[1].morpho;
       $scope.visible = true;
     }
-    console.log($scope.morphos.value);
   }
   
   
@@ -98,7 +97,7 @@ function combiListController($scope, photoSearchService, $http) {
     for (var i=0; i<$scope.chartes.length; i++) {
       valeur = $scope.chartes[i].nom;
       if (!$scope.isInList(valeur, tmpList)) {
-        tmpList.push(valeur.toString());
+        tmpList.push({value : valeur});
       }
     }
     $scope.filterListCharte = tmpList;
@@ -114,19 +113,21 @@ function combiListController($scope, photoSearchService, $http) {
     for (var i=0; i<$scope.combis.length; i++) {
       valeur = parseInt($scope.combis[i].epaisseur);
       if (!$scope.isInList(valeur, tmpList)) {
-        tmpList.push(valeur.toString());
+        tmpList.push({value : valeur});
       }
     }
     $scope.filterList.size = tmpList;
   }
   
+  
+  //a modifier avec la fonctiondu bas
   $scope.isInList = function(element, tab){
     
     var isIn = false;
     var i = 0;
     
     while (!isIn && i<tab.length) {
-      if (element == tab[i]) {
+      if (element == tab[i].value) {
         isIn = true;
       }
       i++ ;
@@ -192,7 +193,8 @@ function combiListController($scope, photoSearchService, $http) {
             goodPhoto.push(combinaison);
           }//sinon ca ne lui va pas :)
           */
-          combinaison = { name : $scope.combis[i].nom, size : goodSize, year : $scope.combis[i].annee, thickness : parseInt($scope.combis[i].epaisseur), url : $scope.combis[i].urlImage};
+          combinaison = { name : $scope.combis[i].nom, size : goodSize, year : $scope.combis[i].annee, thickness : parseInt($scope.combis[i].epaisseur), url : $scope.combis[i].urlImage, marque: $scope.chartes[j-1].nom };
+          console.log(combinaison.marque);
           bestPhoto.push(combinaison);
         });
       }
@@ -200,19 +202,58 @@ function combiListController($scope, photoSearchService, $http) {
     }
     $scope.bestCombi = bestPhoto;
     $scope.goodCombi = goodPhoto;
+    $scope.updateCombi();
     $scope.show = true;
   }
   
-  $scope.selectCombi = function(liste){
-    var combinaison = {};
-    
-    angular.forEach(liste, function(value, key){
-      if ($scope.isInList(value.thickness, $scope.test)) {
-        combinaison[key] = value;
+  $scope.selectedCombi = [];
+  $scope.filterM = [];
+  
+  //il faudra intergert les marques aussi :)
+  $scope.updateCombi = function (){
+    if ($scope.filterE.length == 0) { //si il est vide on affiche tous
+      if ($scope.filterM.length == 0) {
+        $scope.selectedCombi = $scope.bestCombi;
       }
-    });
-    return combinaison;
-    
+      else{
+        var valeur;
+        var tmpcombi = [];
+        for (var i=0; i<$scope.bestCombi.length; i++) {
+          valeur = $scope.bestCombi[i].marque;
+          if ($scope.filterM.indexOf(valeur) >= 0) {
+            tmpcombi.push($scope.bestCombi[i]);
+          }
+        }
+        $scope.selectedCombi = tmpcombi;
+      }
+    }
+    else{
+      if ($scope.filterM.length == 0) {
+        var valeur;
+        var tmpcombi = [];
+        for (var i=0; i<$scope.bestCombi.length; i++) {
+          valeur = parseInt($scope.bestCombi[i].thickness);
+          if ($scope.filterE.indexOf(valeur) >= 0) {
+            tmpcombi.push($scope.bestCombi[i]);
+          }
+        }
+        $scope.selectedCombi = tmpcombi;
+      }
+      else{//mélange marque et taille
+        var valeur;
+        var marque;
+        var tmpcombi = [];
+        for (var i=0; i<$scope.bestCombi.length; i++) {
+          valeur = parseInt($scope.bestCombi[i].thickness);
+          marque = $scope.bestCombi[i].marque;
+          if ($scope.filterE.indexOf(valeur) >= 0 && $scope.filterM.indexOf(marque) >= 0) {
+            tmpcombi.push($scope.bestCombi[i]);
+          }
+        }
+        $scope.selectedCombi = tmpcombi;
+      }
+      
+    }
   }
   
   $scope.setThumbSize = function(size) {
@@ -225,6 +266,51 @@ function combiListController($scope, photoSearchService, $http) {
 
     $scope.itemClass = function(item) {
         return item === $scope.selected ? 'active' : undefined;
+    };
+    
+    
+    var updateSelected = function (action, id) {
+        if (action == 'add' & $scope.filterE.indexOf(id) == -1) $scope.filterE.push(id);
+        if (action == 'remove' && $scope.filterE.indexOf(id) != -1) $scope.filterE.splice($scope.filterE.indexOf(id), 1);
+        $scope.updateCombi();
+    }
+
+    $scope.updateSelection = function ($event, id) {
+        var checkbox = $event.target;
+        var action = (checkbox.checked ? 'add' : 'remove');
+        updateSelected(action, id);
+    };
+
+
+    $scope.isSelected = function (id) {
+        return $scope.filterE.indexOf(id) >= 0;
+    };
+
+    //something extra I couldn't resist adding :)
+    $scope.isSelectedAll = function () {
+        return $scope.filterE.length === $scope.filterList.size.length;
+    };
+    
+    var updateSelectedM = function (action, id) {
+        if (action == 'add' & $scope.filterM.indexOf(id) == -1) $scope.filterM.push(id);
+        if (action == 'remove' && $scope.filterM.indexOf(id) != -1) $scope.filterM.splice($scope.filterM.indexOf(id), 1);
+        $scope.updateCombi();
+    }
+
+    $scope.updateSelectionM = function ($event, id) {
+        var checkbox = $event.target;
+        var action = (checkbox.checked ? 'add' : 'remove');
+        updateSelectedM(action, id);
+    };
+
+
+    $scope.isSelectedM = function (id) {
+        return $scope.filterM.indexOf(id) >= 0;
+    };
+
+    //something extra I couldn't resist adding :)
+    $scope.isSelectedAllM = function () {
+        return $scope.filterM.length === $scope.filterListCharte.length;
     };
 }
 
